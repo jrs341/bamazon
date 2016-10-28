@@ -22,29 +22,48 @@ var promptCustomer = function() {
     console.log('Command-line input received:');
     console.log('  product ID: ' + result.productID);
     console.log('  quantity: ' + result.quantity);
+    checkQuantity(result.productID, result.quantity);
   });
 }
+
+var checkQuantity = function(requestID, requestQuantity) {
+	// console.log(requestID);
+	connection.query('SELECT * FROM products WHERE id=?',[requestID], function(err, res) {
+		if (err) throw err;
+		console.log(res[0].inStockQuantity);
+		if (requestQuantity > res[0].inStockQuantity) {
+			console.log('We only have ' + res[0].inStockQuantity + ' available');
+		} else {
+			console.log('Place Order');
+		}
+		// for (var i = 0; i < res.length; i++) {
+		// 	console.log('  In Stock ' + res[i].inStockQuantity);
+		// }
+		// console.log('  Quanity result ' + res.id);
+	})
+	
+}
+
 var displayProducts = function() {
 	connection.query('SELECT * FROM products', function(err, res) {
 	    if (err) throw err;
 	    console.log(res); 
-	    promptCustomer();   
+	    promptCustomer(); 
+	    // checkQuantity();  
 	});
+	
 }
 
 displayProducts();
 
-// prompt.start();
- 
-//   // 
-//   // Get two properties from the user: username and email 
-//   // 
-//   prompt.get(['productID', 'quantity'], function (err, result) {
-//     // 
-//     // Log the results. 
-//     // 
-//     console.log('Command-line input received:');
-//     console.log('  product ID: ' + result.productID);
-//     console.log('  quantity: ' + result.quantity);
-//   });
+// connection.query('SELECT inStockQuantity FROM products WHERE id=9', function(err, res) {
+// 		if (err) throw err;
+// 		console.log(res.length);
+// 		for (var i = 0; i < res.length; i++) {
+// 			console.log(res[i].inStockQuantity);
+// 		}
+// 		// console.log('  Quanity result ' + res);
+// 	})
+
+
 
