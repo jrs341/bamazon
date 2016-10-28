@@ -30,7 +30,7 @@ var checkQuantity = function(requestID, requestQuantity) {
 	// console.log(requestID);
 	connection.query('SELECT * FROM products WHERE id=?',[requestID], function(err, res) {
 		if (err) throw err;
-		// console.log(res[0].inStockQuantity);
+		console.log(res[0].price);
 		if (requestQuantity > res[0].inStockQuantity) {
 			console.log('We only have ' + res[0].inStockQuantity + ' available');
 			promptCustomer();
@@ -41,8 +41,9 @@ var checkQuantity = function(requestID, requestQuantity) {
 			}, {
     		id: requestID
 			}], function(err, res) {
-				console.log(res);
+				console.log('In stock update complete');
 			});
+		console.log('Total cost is ' + res[0].price * requestQuantity);
 		}
 	})	
 }
