@@ -30,18 +30,21 @@ var checkQuantity = function(requestID, requestQuantity) {
 	// console.log(requestID);
 	connection.query('SELECT * FROM products WHERE id=?',[requestID], function(err, res) {
 		if (err) throw err;
-		console.log(res[0].inStockQuantity);
+		// console.log(res[0].inStockQuantity);
 		if (requestQuantity > res[0].inStockQuantity) {
 			console.log('We only have ' + res[0].inStockQuantity + ' available');
+			promptCustomer();
 		} else {
 			console.log('Place Order');
+			connection.query("UPDATE products SET ? WHERE ?", [{
+    		inStockQuantity: (res[0].inStockQuantity - requestQuantity)
+			}, {
+    		id: requestID
+			}], function(err, res) {
+				console.log(res);
+			});
 		}
-		// for (var i = 0; i < res.length; i++) {
-		// 	console.log('  In Stock ' + res[i].inStockQuantity);
-		// }
-		// console.log('  Quanity result ' + res.id);
-	})
-	
+	})	
 }
 
 var displayProducts = function() {
