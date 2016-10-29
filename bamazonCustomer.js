@@ -49,6 +49,7 @@ var checkQuantity = function(requestID, requestQuantity) {
 			totalCost = subTotal + totalCost;
 		
 			prompt.start();
+			console.log('enter \'y\' to order more items or \'n\' to checkout');
 			prompt.get(['Order_More_Items'], function(err, result){
 				if (err) throw err;
 				if (result.Order_More_Items == 'y') {
