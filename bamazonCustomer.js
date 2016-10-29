@@ -14,6 +14,8 @@ connection.connect(function(err) {
     // console.log("connected as id " + connection.threadId);
 })
 
+var totalCost = 0;
+
 var promptCustomer = function() {
 	prompt.start();
   // Get two properties from the user: productID and quantity 
@@ -35,15 +37,26 @@ var checkQuantity = function(requestID, requestQuantity) {
 			console.log('We only have ' + res[0].inStockQuantity + ' available');
 			promptCustomer();
 		} else {
-			console.log('Place Order');
+			// console.log('Place Order');
 			connection.query("UPDATE products SET ? WHERE ?", [{
     		inStockQuantity: (res[0].inStockQuantity - requestQuantity)
 			}, {
     		id: requestID
 			}], function(err, res) {
-				console.log('In stock update complete');
+				// console.log('In stock update complete');
 			});
-		console.log('Total cost is ' + res[0].price * requestQuantity);
+			var subTotal = (res[0].price * requestQuantity);
+			totalCost = subTotal + totalCost;
+		
+			prompt.start();
+			prompt.get(['Order_More_Items'], function(err, result){
+				if (err) throw err;
+				if (result.Order_More_Items == 'y') {
+					promptCustomer();
+				} else {
+					console.log('Total cost is ' + totalCost);
+				}
+			})
 		}
 	})	
 }
@@ -51,23 +64,15 @@ var checkQuantity = function(requestID, requestQuantity) {
 var displayProducts = function() {
 	connection.query('SELECT * FROM products', function(err, res) {
 	    if (err) throw err;
-	    console.log(res); 
+	    for (var i = 0; i < res.length; i++) {	
+	    console.log(' productID: ' + res[i].id + ' Description: ' + res[i].productName + ' Price: ' + res[i].price + ' Qty in Stock: ' + res[i].inStockQuantity);
+		}
 	    promptCustomer(); 
-	    // checkQuantity();  
-	});
-	
+	});	
 }
 
 displayProducts();
 
-// connection.query('SELECT inStockQuantity FROM products WHERE id=9', function(err, res) {
-// 		if (err) throw err;
-// 		console.log(res.length);
-// 		for (var i = 0; i < res.length; i++) {
-// 			console.log(res[i].inStockQuantity);
-// 		}
-// 		// console.log('  Quanity result ' + res);
-// 	})
 
 
 
