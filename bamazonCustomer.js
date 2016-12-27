@@ -15,7 +15,7 @@ connection.connect(function(err) {
 })
 
 var totalCost = 0;
-
+// =====================================================================================================
 var promptCustomer = function() {
 	prompt.start();
   // Get two properties from the user: productID and quantity 
@@ -28,6 +28,8 @@ var promptCustomer = function() {
   });
 }
 
+// checks the current inventory against the customers request and removes the customers quantity from the database quantity
+// =====================================================================================================
 var checkQuantity = function(requestID, requestQuantity) {
 	// console.log(requestID);
 	connection.query('SELECT * FROM products WHERE id=?',[requestID], function(err, res) {
@@ -62,6 +64,8 @@ var checkQuantity = function(requestID, requestQuantity) {
 	})	
 }
 
+// displays a list of all the products for sale
+// =====================================================================================================
 var displayProducts = function() {
 	connection.query('SELECT * FROM products', function(err, res) {
 	    if (err) throw err;

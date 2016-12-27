@@ -16,27 +16,32 @@ connection.connect(function(err) {
     promptManager();
 })
 
+// displays a list of all the products for sale
+// =====================================================================================================
 var displayProducts = function() {
     connection.query('SELECT * FROM products', function(err, res) {
         if (err) throw err;
         for (var i = 0; i < res.length; i++) {  
         console.log(' productID: ' + res[i].id + ' Description: ' + res[i].productName + ' Price: ' + res[i].price + ' Qty in Stock: ' + res[i].inStockQuantity);
         }
-    promptManager();
+        promptManager();
     }); 
 }
 
+// displays a list of all the products with a current inventory less than or equal to three
+// =====================================================================================================
 var viewLowInv = function() {
     connection.query('SELECT * FROM products WHERE inStockQuantity<=3', function(err, res) {
         if (err) throw err;
         for (var i = 0; i < res.length; i++) {  
         console.log(' productID: ' + res[i].id + ' Description: ' + res[i].productName + ' Price: ' + res[i].price + ' Qty in Stock: ' + res[i].inStockQuantity);
         }
-    promptManager();
+        promptManager();
     });
 }
-// [{inStockQuantity: (res[0].inStockQuantity + requestQuantity)}, {
-//         id: requestID}]
+
+// allows the manager to add update inventory quantity
+// =====================================================================================================
 var addToInv = function(requestID, requestQuantity) {
     connection.query('SELECT * FROM products WHERE id=?', [requestID], function(err, res){
         if (err) throw err; 
@@ -44,10 +49,11 @@ var addToInv = function(requestID, requestQuantity) {
                 console.log('In stock update complete');
             });
         promptManager();
-        });
-    
+    });  
 }
 
+// allows the manager to add new products to the database
+// =====================================================================================================
 var addNewProduct = function(department, Name, pricePer, Quantity) {
     connection.query("INSERT INTO products (departmentId, productName, price, inStockQuantity) VALUES ('" + department + "','" + Name + "','" + pricePer + "','" + Quantity + "');", function(err, res){
         if (err) throw err;
@@ -56,8 +62,6 @@ var addNewProduct = function(department, Name, pricePer, Quantity) {
     promptManager();
 }
     
-
-
 var promptManager = function() {
     inquirer.prompt({
         name: "action",
@@ -76,12 +80,10 @@ var promptManager = function() {
             	console.log('products for sale');
                 displayProducts();
             break;
-
             case 'View Low Inventory':
                 console.log('products with low inventory');
                 viewLowInv();
             break;
-
             case 'Add to Inventory':
                 prompt.get(['productID', 'quantity'], function (err, result) { 
                 // Log the results. 
@@ -91,10 +93,8 @@ var promptManager = function() {
                 addToInv(result.productID, result.quantity)
             });
             break;
-
             case 'Add New Product':
                prompt.get(['Department_ID', 'Product_Name', 'Price', 'In_Stock_Quantity'], function(err, result){
-                // console.log(result);
                 console.log('Command-line input received:');
                 console.log('  Department ID: ' + result.Department_ID);
                 console.log('  Product Name: ' + result.Product_Name);
