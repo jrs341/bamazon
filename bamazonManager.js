@@ -35,13 +35,12 @@ var viewLowInv = function() {
     promptManager();
     });
 }
-
+// [{inStockQuantity: (res[0].inStockQuantity + requestQuantity)}, {
+//         id: requestID}]
 var addToInv = function(requestID, requestQuantity) {
     connection.query('SELECT * FROM products WHERE id=?', [requestID], function(err, res){
         if (err) throw err; 
-        connection.query("UPDATE products SET ? WHERE ?", [{inStockQuantity: (res[0].inStockQuantity + requestQuantity)}, {
-        id: requestID
-            }], function(err, res) {
+        connection.query("UPDATE products SET inStockQuantity=inStockQuantity+" + requestQuantity + ' WHERE id="' + requestID + '"', function(err, res) {
                 console.log('In stock update complete');
             });
         promptManager();
