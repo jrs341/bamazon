@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
+var prompt = require('prompt');
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -11,11 +12,54 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
     if (err) throw err;
-    console.log("connected as id " + connection.threadId);
-    runSearch();
+    // console.log("connected as id " + connection.threadId);
+    promptManager();
 })
 
-var runSearch = function() {
+var displayProducts = function() {
+    connection.query('SELECT * FROM products', function(err, res) {
+        if (err) throw err;
+        for (var i = 0; i < res.length; i++) {  
+        console.log(' productID: ' + res[i].id + ' Description: ' + res[i].productName + ' Price: ' + res[i].price + ' Qty in Stock: ' + res[i].inStockQuantity);
+        }
+    promptManager();
+    }); 
+}
+
+var viewLowInv = function() {
+    connection.query('SELECT * FROM products WHERE inStockQuantity<=3', function(err, res) {
+        if (err) throw err;
+        for (var i = 0; i < res.length; i++) {  
+        console.log(' productID: ' + res[i].id + ' Description: ' + res[i].productName + ' Price: ' + res[i].price + ' Qty in Stock: ' + res[i].inStockQuantity);
+        }
+    promptManager();
+    });
+}
+
+var addToInv = function(requestID, requestQuantity) {
+    connection.query('SELECT * FROM products WHERE id=?', [requestID], function(err, res){
+        if (err) throw err; 
+        connection.query("UPDATE products SET ? WHERE ?", [{inStockQuantity: (res[0].inStockQuantity + requestQuantity)}, {
+        id: requestID
+            }], function(err, res) {
+                console.log('In stock update complete');
+            });
+        promptManager();
+        });
+    
+}
+
+var addNewProduct = function(department, Name, pricePer, Quantity) {
+    connection.query("INSERT INTO products (departmentId, productName, price, inStockQuantity) VALUES ('" + department + "','" + Name + "','" + pricePer + "','" + Quantity + "');", function(err, res){
+        if (err) throw err;
+        console.log("Item added to Bamazon!");
+    });
+    promptManager();
+}
+    
+
+
+var promptManager = function() {
     inquirer.prompt({
         name: "action",
         type: "list",
@@ -31,20 +75,35 @@ var runSearch = function() {
         switch(answer.action) {
             case 'View Products for Sale':
             	console.log('products for sale');
-                // artistSearch();
+                displayProducts();
             break;
 
             case 'View Low Inventory':
-                // multiSearch();
+                console.log('products with low inventory');
+                viewLowInv();
             break;
 
             case 'Add to Inventory':
-                // rangeSearch();
+                prompt.get(['productID', 'quantity'], function (err, result) { 
+                // Log the results. 
+                console.log('Command-line input received:');
+                console.log('  product ID: ' + result.productID);
+                console.log('  quantity: ' + result.quantity);
+                addToInv(result.productID, result.quantity)
+            });
             break;
 
             case 'Add New Product':
-                // songSearch();
+               prompt.get(['Department_ID', 'Product_Name', 'Price', 'In_Stock_Quantity'], function(err, result){
+                // console.log(result);
+                console.log('Command-line input received:');
+                console.log('  Department ID: ' + result.Department_ID);
+                console.log('  Product Name: ' + result.Product_Name);
+                console.log('  Price: ' + result.Price);
+                console.log('  In_Stock_Quantity: ' + result.In_Stock_Quantity);
+                addNewProduct(result.Department_ID, result.Product_Name, result.Price, result.In_Stock_Quantity)
+               });
             break;
         }
-    })
+    });
 }
